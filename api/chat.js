@@ -16,13 +16,24 @@ module.exports = async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: system + '\n\nTransaction: ' + userText }] }]
+          contents: [{
+            parts: [{
+              text: system + '\n\nTransaction: ' + userText + '\n\nIMPORTANT: Reply with ONLY valid JSON. No markdown, no explanation, no code blocks.'
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: "application/json"
+          }
         })
       }
     );
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    // Clean any markdown if present
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
     res.status(200).json({
       content: [{ type: 'text', text }]

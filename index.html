@@ -433,27 +433,27 @@ async function processTransaction() {
 
   try {
     const res = await fetch('/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    model: 'gemini',
-    max_tokens: 1000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: text }]
-  })
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gemini',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
 
     const raw = data.content?.find(c => c.type === 'text')?.text || '';
-let clean = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+    let clean = raw.replace(/```json/g, '').replace(/```/g, '').trim();
 
-// JSON block மட்டும் extract பண்ணு
-const jsonMatch = clean.match(/\{[\s\S]*\}/);
-if (!jsonMatch) throw new Error('No JSON found in response');
-clean = jsonMatch[0];
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON found');
+    clean = jsonMatch[0];
 
-const parsed = JSON.parse(clean);
+    const parsed = JSON.parse(clean);
 
     parsed.entries.forEach(entry => {
       entries.push(entry);
@@ -474,6 +474,12 @@ const parsed = JSON.parse(clean);
     renderReports();
     showToast(`✅ ${parsed.entries.length} entry(ies) recorded`, 'success');
   } catch(e) {
+    showToast('Error: ' + (e.message || 'Try again'), 'error');
+  }
+
+  btn.disabled = false;
+  label.innerHTML = '⚡ Record Transaction';
+}
     showToast('Error: ' + (e.message || 'Try again'), 'error');
   }
 

@@ -432,16 +432,16 @@ async function processTransaction() {
   label.innerHTML = '<span class="spinner"></span> Processing...';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: text }]
-      })
-    });
+    const res = await fetch('/api/chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    model: 'gemini',
+    max_tokens: 1000,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: text }]
+  })
+});
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
 

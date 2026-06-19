@@ -446,8 +446,14 @@ async function processTransaction() {
     if (data.error) throw new Error(data.error.message);
 
     const raw = data.content?.find(c => c.type === 'text')?.text || '';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+let clean = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+
+// JSON block மட்டும் extract பண்ணு
+const jsonMatch = clean.match(/\{[\s\S]*\}/);
+if (!jsonMatch) throw new Error('No JSON found in response');
+clean = jsonMatch[0];
+
+const parsed = JSON.parse(clean);
 
     parsed.entries.forEach(entry => {
       entries.push(entry);
